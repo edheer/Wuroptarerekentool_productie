@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" >
+    <title data-translate-key="pageTitle">WUR Berekeningsmodel Uitruil</title>
+    <link rel="stylesheet" href="style.css" >
+</head>
+<body>
+     <div class="container">
+        <!-- Taalwisselknop -->
+        <div class="language-switcher">
+            <button id="translate-btn" type="button" title="Switch language">...</button>
+        </div>
+
+        <header class="header">
+            <h1 data-translate-key="headerTitle">Simulatietool Optare</h1>
+        </header>
+
+        <!-- Dropdown om tool te kiezen -->
+        <div class="source-selector-container">
+            <label for="source-selector" id="source-selector-label" data-translate-key="sourceSelectorLabel">Kies uw berekening</label>
+            <select id="source-selector">
+                <option value="reiskosten" selected data-translate-key="sourceTravel">Reiskosten</option>
+                <option value="fiets" data-translate-key="sourceBike">Fiets</option>
+                <option value="extra_verlof" data-translate-key="sourceLeave">Extra verlof</option>
+                <option value="vakbond" data-translate-key="sourceUnion">Vakbondcontributie</option>
+            </select>
+        </div>
+
+        <p class="footer-disclaimer" data-translate-key="disclaimer">
+            * Let op: dit is een indicatieve berekening. Aan de resultaten kunnen geen rechten worden ontleend.
+        </p>
+
+        <!-- Container voor tools (elk in eigen sectie) -->
+       <section id="tool-reiskosten" class="tool-section">
+            <div class="main-grid">
+                <!-- LINKER KOLOM: INPUTS -->
+                <div class="input-column">
+                    <div class="card">
+                        <h2 data-translate-key="yourBudget">Jouw budget</h2>
+                        <div class="budget-info">
+                            <div class="row">
+                                <span class="label">
+                                    <span data-translate-key="availableSource">Beschikbare bron</span>
+                                    (<span id="budget_bron_naam"></span>)
+                                </span>
+                                <span class="value" id="budget_bron_totaal"></span>
+                            </div>
+                            <div class="row">
+                                <span class="label" data-translate-key="totalUsedAmount">Totaal ingezet bedrag</span>
+                                <span class="value" id="budget_inzet"></span>
+                            </div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-bar-inner" id="progress_bar"></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2 data-translate-key="travelCostExchange">Uitruil reiskosten</h2>
+                            <div class="input-grid">
+                                <div class="input-group">
+                                    <label for="max_vakantiegeld" 
+                                        data-translate-key="labelHolidayPay" 
+                                        title="Kan je terugvinden via MyHR > menu > mijn aanvragen > optare > optare banner. Let op, in de banner staat dit nu op 0 omdat de uitbetaling al is geweest (mei).">
+                                        Max. inzet vakantiegeld
+                                    </label>
+                                    <input type="number" id="max_vakantiegeld" value="0" min="0">
+                                </div>
+                                <div class="input-group">
+                                    <label for="max_eindejaarsuitkering" 
+                                        data-translate-key="labelYearEndBonus"
+                                        title="Kan je terugvinden via MyHR > menu > mijn aanvragen > optare > optare banner.">
+                                        Max. inzet eindejaarsuitkering
+                                    </label>
+                                    <input type="number" id="max_eindejaarsuitkering" value="0" min="0">
+                                </div>
+                                <div class="input-group">
+                                    <label for="reisdagen_gedeclareerd" 
+                                        data-translate-key="labelTravelDays"
+                                        title="Je kan alleen zien wat je tot nu toe hebt gedeclareerd. Schat zelf in wat je voor de rest van het jaar verwacht aan reisdagen te maken.">
+                                        Gedeclareerde reisdagen
+                                    </label>
+                                    <input type="number" id="reisdagen_gedeclareerd" value="0" min="0">
+                                </div>
+                                <div class="input-group">
+                                    <label for="km_fiscaal" 
+                                        data-translate-key="labelDistance"
+                                        title="Kan je terugvinden via MyHR > menu > mijn aanvragen > optare > optare banner.">
+                                        Enkele reisafstand
+                                    </label>
+                                    <input type="number" id="km_fiscaal" value="0" min="0">
+                                </div>
+                                <div class="input-group">
+                                    <label for="keuze_inzet" data-translate-key="labelSourceToUse">Welke bron wil je inzetten?</label>
+                                    <select id="keuze_inzet">
+                                        <option value="eindejaarsuitkering" data-translate-key="optionYearEndBonus">Eindejaarsuitkering</option>
+                                        <option value="beide" data-translate-key="optionBoth">Vakantiegeld &amp; Eindejaarsuitkering</option>
+                                    </select>
+                                </div>
+                            </div>
+                        <div class="action-container">
+                            <a id="open-info-modal-link" class="info-link" data-translate-key="explanationLink">Uitleg van berekening</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RECHTER KOLOM: RESULTATEN -->
+                <div class="results-column">
+                    <div class="card">
+                        <h2 data-translate-key="yourNetBenefit">Jouw netto voordeel</h2>
+                        <div class="hero-result">
+                            <div class="label" data-translate-key="netBenefitLabel">Je houdt netto méér over op jaarbasis:</div>
+                            <span class="value" id="verschil_netto"></span>
+                        </div>
+                        <div class="action-container">
+                            <a href="https://workforce.nl.adp.com/PV_Web/composer/workspace.jsp?mode=medewerker&action=screen&service=flex_cockpit"
+                               target="_blank"
+                               class="cta-button"
+                               data-translate-key="applyButton">
+                                Direct aanvragen in Optare
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2 data-translate-key="calculationDetails">De details van de berekening</h2>
+                        <div class="result-box">
+                            <h3 data-translate-key="currentSituation">Huidige situatie</h3>
+                            <div class="calculation-details">
+                                <div class="calculation-item">
+                                    <div class="item-label">
+                                        <span class="main-label" data-translate-key="gross">Bruto </span>
+                                        <span class="sub-label bron_naam"></span>
+                                    </div>
+                                    <div class="item-value">
+                                        <span class="amount" id="huidig_bruto"></span>
+                                    </div>
+                                </div>
+                                <div class="calculation-item">
+                                    <div class="item-label">
+                                        <span class="main-label" data-translate-key="tax">Belasting (ca. 50%)</span>
+                                    </div>
+                                    <div class="item-value text-negative">
+                                        <span class="amount" id="huidig_belasting"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="calculation-item is-total">
+                                <div class="item-label">
+                                    <span class="main-label" data-translate-key="netPaid">Netto uitbetaald</span>
+                                </div>
+                                <div class="item-value">
+                                    <span class="amount" id="huidig_netto"></span>
+                                </div>
+                            </div>
+                            <a class="toggle-details-btn" data-translate-key="showDetails">Toon details</a>
+                        </div>
+
+                        <div class="result-box">
+                            <h3 data-translate-key="situationAfterExchange">Situatie na uitruil</h3>
+                            <div class="calculation-details">
+                                <div class="calculation-item">
+                                    <div class="item-label">
+                                        <span class="main-label" data-translate-key="gross">Bruto </span>
+                                        <span class="sub-label bron_naam"></span>
+                                    </div>
+                                    <div class="item-value">
+                                        <span class="amount" id="nieuw_bruto"></span>
+                                    </div>
+                                </div>
+                                <div class="calculation-item">
+                                    <div class="item-label">
+                                        <span class="main-label" data-translate-key="tax">Belasting (ca. 50%)</span>
+                                    </div>
+                                    <div class="item-value text-negative">
+                                        <span class="amount" id="nieuw_belasting"></span>
+                                    </div>
+                                </div>
+                                <div class="calculation-item">
+                                    <div class="item-label">
+                                        <span class="main-label" data-translate-key="taxFreeExchange">+ Belastingvrije uitruil</span>
+                                    </div>
+                                    <div class="item-value text-positive">
+                                        <span class="amount" id="nieuw_uitruil"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="calculation-item is-total">
+                                <div class="item-label">
+                                    <span class="main-label" data-translate-key="netPaid">Netto uitbetaald</span>
+                                </div>
+                                <div class="item-value">
+                                    <span class="amount" id="nieuw_netto"></span>
+                                </div>
+                            </div>
+                            <a class="toggle-details-btn" data-translate-key="showDetails">Toon details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+<section id="tool-fiets" class="tool-section" style="display:none;">
+  <div class="main-grid">
+    <!-- LINKER KOLOM: INPUTS -->
+    <div class="input-column">
+      <div class="card">
+        <h2 data-translate-key="yourBudget">Jouw budget</h2>
+        <div class="budget-info">
+          <div class="row">
+            <span class="label">
+              <span data-translate-key="availableSource">Beschikbare bron</span> (<span id="budget_bron_naam_fiets"></span>)
+            </span>
+            <span class="value" id="budget_bron_totaal_fiets">€ 0,00</span>
+          </div>
+          <div class="row">
+            <span class="label" data-translate-key="totalUsedAmount">Totaal ingezet bedrag</span>
+            <span class="value" id="budget_inzet_fiets">€ 0,00</span>
+          </div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-bar-inner" id="progress_bar_fiets"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 data-translate-key="bikeRegulationTitle">Uitruil (elektrische) fiets/scooter</h2>
+        <div class="input-grid">
+          <div class="input-group">
+            <label for="fiets_aankoopbedrag" data-translate-key="labelBikePurchaseAmountFull">Aankoopbedrag (incl. accessoires/verzekering)</label>
+            <input type="number" id="fiets_aankoopbedrag" placeholder="max. € 2.500" min="0" max="2500">
+          </div>
+          <div class="input-group">
+            <label for="max_vakantiegeld_fiets" data-translate-key="labelHolidayPay">Max. inzet vakantiegeld</label>
+            <input type="number" id="max_vakantiegeld_fiets" value="0" min="0">
+          </div>
+          <div class="input-group">
+            <label for="max_eindejaarsuitkering_fiets" data-translate-key="labelYearEndBonus">Max. inzet eindejaarsuitkering</label>
+            <input type="number" id="max_eindejaarsuitkering_fiets" value="0" min="0">
+          </div>
+          <div class="input-group">
+            <label for="keuze_inzet_fiets" data-translate-key="labelSourceToUse">Welke bron wil je inzetten?</label>
+            <select id="keuze_inzet_fiets">
+              <option value="eindejaarsuitkering" data-translate-key="optionYearEndBonus">Eindejaarsuitkering</option>
+              <option value="vakantiegeld" data-translate-key="optionHolidayPay">Vakantiegeld</option>
+              <option value="beide" data-translate-key="optionBoth">Vakantiegeld &amp; Eindejaarsuitkering</option>
+            </select>
+          </div>
+        </div>
+        <div class="action-container">
+        <a id="open-info-modal-link-fiets" class="info-link" data-translate-key="explanationLinkBike">Uitleg & voorwaarden</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECHTER KOLOM: RESULTATEN -->
+    <div class="results-column">
+      <div class="card">
+        <h2 data-translate-key="yourNetBenefit">Jouw netto voordeel</h2>
+        <div class="hero-result">
+          <div class="label" data-translate-key="netBenefitBikeLabel">Je houdt netto méér over door belastingvoordeel:</div>
+          <span class="value" id="fiets_verschil_netto">€ 0,00</span>
+        </div>
+        <div class="action-container">
+          <a href="https://workforce.nl.adp.com/PV_Web/composer/workspace.jsp?mode=medewerker&action=screen&service=flex_cockpit"
+             target="_blank" class="cta-button" data-translate-key="applyButton">Direct aanvragen in Optare</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 data-translate-key="calculationDetails">De details van de berekening</h2>
+        <div class="result-box">
+          <h3 data-translate-key="currentSituation">Huidige situatie</h3>
+          <div class="calculation-details">
+            <div class="calculation-item">
+              <div class="item-label">
+                <span class="main-label" data-translate-key="gross">Bruto </span>
+                <span class="sub-label bron_naam_fiets"></span> <!-- GEBRUIK EEN CLASS -->
+              </div>
+              <div class="item-value"><span class="amount" id="fiets_huidig_bruto">€ 0,00</span></div>
+            </div>
+            <div class="calculation-item">
+              <div class="item-label"><span class="main-label" data-translate-key="tax">Belasting (ca. 50%)</span></div>
+              <div class="item-value text-negative"><span class="amount" id="fiets_huidig_belasting">€ 0,00</span></div>
+            </div>
+          </div>
+          <div class="calculation-item is-total">
+            <div class="item-label"><span class="main-label" data-translate-key="netPaid">Netto uitbetaald</span></div>
+            <div class="item-value"><span class="amount" id="fiets_huidig_netto">€ 0,00</span></div>
+          </div>
+          <a class="toggle-details-btn" data-translate-key="showDetails">Toon details</a>
+        </div>
+
+        <div class="result-box">
+          <h3 data-translate-key="situationAfterExchange">Situatie na uitruil</h3>
+          <div class="calculation-details">
+            <div class="calculation-item">
+              <div class="item-label">
+                <span class="main-label" data-translate-key="gross">Bruto </span>
+                <span class="sub-label bron_naam_fiets"></span> <!-- GEBRUIK EEN CLASS -->
+              </div>
+              <div class="item-value"><span class="amount" id="fiets_nieuw_bruto">€ 0,00</span></div>
+            </div>
+            <div class="calculation-item">
+              <div class="item-label"><span class="main-label" data-translate-key="tax">Belasting (ca. 50%)</span></div>
+              <div class="item-value text-negative"><span class="amount" id="fiets_nieuw_belasting">€ 0,00</span></div>
+            </div>
+            <div class="calculation-item">
+              <div class="item-label"><span class="main-label" data-translate-key="taxFreeExchange">+ Belastingvrije uitruil</span></div>
+              <div class="item-value text-positive"><span class="amount" id="fiets_nieuw_uitruil">€ 0,00</span></div>
+            </div>
+          </div>
+          <div class="calculation-item is-total">
+            <div class="item-label"><span class="main-label" data-translate-key="netPaid">Netto uitbetaald</span></div>
+            <div class="item-value"><span class="amount" id="fiets_nieuw_netto">€ 0,00</span></div>
+          </div>
+          <a class="toggle-details-btn" data-translate-key="showDetails">Toon details</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="tool-extra_verlof" class="tool-section" style="display: none;">
+    <div class="main-grid">
+        <!-- LINKER KOLOM: INPUTS -->
+        <div class="input-column">
+            <div class="card">
+                <h2 data-translate-key="leaveSaleTitle">Verkopen van bovenwettelijk verlof</h2>
+                <div class="input-grid-single">
+                    <div class="input-group">
+                        <label data-translate-key="labelUserType">Type medewerker</label>
+                        <div class="radio-group">
+                            <input type="radio" id="verlof_user_type_wu" name="verlof_user_type" value="wu" checked>
+                            <label for="verlof_user_type_wu">WU-medewerker</label>
+                            <input type="radio" id="verlof_user_type_wr" name="verlof_user_type" value="wr">
+                            <label for="verlof_user_type_wr">WR-medewerker</label>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="verlof_maandsalaris" data-translate-key="labelMonthlySalary">Bruto maandsalaris (o.b.v. fulltime, januari)</label>
+                        <input type="number" id="verlof_maandsalaris" value="3000" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="verlof_uren" data-translate-key="labelHoursToSell">Aantal uren te verkopen (<span id="verlof_max_uren_label">max 38</span>)</label>
+                        <input type="number" id="verlof_uren" min="0" max="38">
+                    </div>
+                </div>
+                <div class="action-container">
+                    <a id="open-info-modal-link-verlof" class="info-link" data-translate-key="explanationLinkLeave">Uitleg & voorwaarden</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- RECHTER KOLOM: RESULTATEN -->
+        <div class="results-column">
+            <div class="card">
+                <h2 data-translate-key="yourNetPayout">Jouw netto-opbrengst</h2>
+                <div class="hero-result">
+                    <div class="label" data-translate-key="netPayoutLabel">Je ontvangt netto (na belasting):</div>
+                    <span class="value" id="verlof_netto_opbrengst">€ 0,00</span>
+                </div>
+                 <div class="action-container">
+                    <a href="https://workforce.nl.adp.com/PV_Web/composer/workspace.jsp?mode=medewerker&action=screen&service=flex_cockpit"
+                       target="_blank" class="cta-button" data-translate-key="applyButton">Direct aanvragen in Optare</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 data-translate-key="calculationDetails">De details van de berekening</h2>
+                <div class="result-box">
+                    <h3 data-translate-key="leaveCalculation">Berekening verlofwaarde</h3>
+                    <div class="calculation-details is-visible">
+                        <div class="calculation-item">
+                            <div class="item-label">
+                                <span class="main-label" data-translate-key="valuePerHour">Waarde per uur</span>
+                            </div>
+                            <div class="item-value">
+                                <span class="amount" id="verlof_waarde_per_uur">€ 0,00</span>
+                            </div>
+                        </div>
+                        <div class="calculation-item">
+                            <div class="item-label">
+                                <span class="main-label" data-translate-key="grossProceeds">Bruto-opbrengst</span>
+                                <span class="sub-label" id="verlof_bruto_sublabel">0 uren</span>
+                            </div>
+                            <div class="item-value">
+                                <span class="amount" id="verlof_bruto_opbrengst">€ 0,00</span>
+                            </div>
+                        </div>
+                        <div class="calculation-item">
+                            <div class="item-label">
+                                <span class="main-label" data-translate-key="tax">Belasting (ca. 50%)</span>
+                            </div>
+                            <div class="item-value text-negative">
+                                <span class="amount" id="verlof_belasting">€ 0,00</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="calculation-item is-total">
+                        <div class="item-label">
+                            <span class="main-label" data-translate-key="netPaid">Netto uitbetaald</span>
+                        </div>
+                        <div class="item-value">
+                            <span class="amount" id="verlof_netto_uitbetaald_detail">€ 0,00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+        <section id="tool-vakbond" class="tool-section" style="display: none;">
+            <div class="main-grid">
+                <!-- LINKER KOLOM: INPUTS -->
+                <div class="input-column">
+                    <div class="card">
+                        <h2 data-translate-key="yourBudget">Jouw budget</h2>
+                        <div class="budget-info">
+                            <div class="row">
+                                <span class="label">
+                                    <span data-translate-key="availableSource">Beschikbare bron</span>
+                                    (<span id="vakbond_budget_bron_naam"></span>)
+                                </span>
+                                <span class="value" id="vakbond_budget_bron_totaal"></span>
+                            </div>
+                            <div class="row">
+                                <span class="label" data-translate-key="totalUsedAmount">Totaal ingezet bedrag</span>
+                                <span class="value" id="vakbond_budget_inzet"></span>
+                            </div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-bar-inner" id="vakbond_progress_bar"></div>
+                        </div>
+                    </div>
+        
+                    <div class="card">
+                        <h2 data-translate-key="unionFeeExchange">Uitruil vakbondscontributie</h2>
+                        <div class="input-grid">
+                            <div class="input-group">
+                                <label for="vakbond_contributie_bedrag" data-translate-key="labelUnionFeeAmount">Brutobedrag contributie per maand/jaar</label>
+                                <input type="number" id="vakbond_contributie_bedrag" value="0" min="0">
+                            </div>
+                            <div class="input-group">
+                                <label for="vakbond_frequentie" data-translate-key="labelUnionFeeFrequency">Frequentie</label>
+                                <select id="vakbond_frequentie">
+                                    <option value="maand" data-translate-key="optionMonthly">Maand</option>
+                                    <option value="jaar" data-translate-key="optionYearly">Jaar</option>
+                                </select>
+                            </div>
+                             <div class="input-group">
+                                <label for="vakbond_max_vakantiegeld" data-translate-key="labelHolidayPay">Max. inzet vakantiegeld</label>
+                                <input type="number" id="vakbond_max_vakantiegeld" value="0" min="0">
+                            </div>
+                            <div class="input-group">
+                                <label for="vakbond_max_eindejaarsuitkering" data-translate-key="labelYearEndBonus">Max. inzet eindejaarsuitkering</label>
+                                <input type="number" id="vakbond_max_eindejaarsuitkering" value="0" min="0">
+                            </div>
+                            <div class="input-group">
+                                <label for="vakbond_keuze_inzet" data-translate-key="labelSourceToUse">Welke bron wil je inzetten?</label>
+                                <select id="vakbond_keuze_inzet">
+                                    <option value="eindejaarsuitkering" data-translate-key="optionYearEndBonus">Eindejaarsuitkering</option>
+                                    <option value="vakantiegeld" data-translate-key="optionHolidayPay">Vakantiegeld</option>
+                                    <option value="beide" data-translate-key="optionBoth">Vakantiegeld &amp; Eindejaarsuitkering</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="action-container">
+                            <a id="open-vakbond-info-modal-link" class="info-link" data-translate-key="explanationLink">Uitleg van berekening</a>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- RECHTER KOLOM: RESULTATEN -->
+                <div class="results-column">
+                    <div class="card">
+                        <h2 data-translate-key="yourNetBenefit">Jouw netto voordeel</h2>
+                        <div class="hero-result">
+                            <div class="label" data-translate-key="netBenefitLabel">Je houdt netto méér over op jaarbasis:</div>
+                            <span class="value" id="vakbond_verschil_netto"></span>
+                        </div>
+                        <div class="action-container">
+                             <p data-translate-key="noUploadNeeded" style="font-size: 0.9em; color: var(--tekst-grijs); margin-bottom: 1rem;">
+                                Voor deze indicatieve berekening hoef je geen documenten te uploaden.
+                            </p>
+                            <a href="https://workforce.nl.adp.com/PV_Web/composer/workspace.jsp?mode=medewerker&action=screen&service=flex_cockpit"
+                               target="_blank"
+                               class="cta-button"
+                               data-translate-key="applyButton">
+                                Direct aanvragen in Optare
+                            </a>
+                        </div>
+                    </div>
+        
+                    <div class="card">
+                        <h2 data-translate-key="calculationDetails">De details van de berekening</h2>
+                        <div class="result-box">
+                            <h3 data-translate-key="currentSituation">Huidige situatie</h3>
+                            <div class="calculation-details">
+                                <div class="calculation-item">
+                                    <div class="item-label">
+                                        <span class="main-label" data-translate-key="grossUnionFee">Bruto vakbondscontributie</span>
+                                    </div>
+                                    <div class="item-value">
+                                        <span class="amount" id="vakbond_huidig_bruto_contributie"></span>
+                                    </div>
+                                </div>
+                                <div class="calculation-item">
+                                    <div class="item-label">
+                                        <span class="main-label" data-translate-key="taxReliefNone">Belastingvoordeel (geen)</span>
+                                    </div>
+                                    <div class="item-value">
+                                        <span class="amount">€ 0,00</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="calculation-item is-total">
+                                <div class="item-label">
+                                    <span class="main-label" data-translate-key="netCost">Netto kosten</span>
+                                </div>
+                                <div class="item-value">
+                                    <span class="amount" id="vakbond_huidig_netto_kosten"></span>
+                                </div>
+                            </div>
+                            <a class="toggle-details-btn" data-translate-key="showDetails">Toon details</a>
+                        </div>
+        
+                        <div class="result-box">
+                            <h3 data-translate-key="situationAfterExchange">Situatie na uitruil</h3>
+                            <div class="calculation-details">
+                                <div class="calculation-item">
+                                    <div class="item-label">
+                                        <span class="main-label" data-translate-key="grossUnionFee">Bruto vakbondscontributie</span>
+                                    </div>
+                                    <div class="item-value">
+                                        <span class="amount" id="vakbond_nieuw_bruto_contributie"></span>
+                                    </div>
+                                </div>
+                                <div class="calculation-item">
+                                    <div class="item-label">
+                                        <span class="main-label" data-translate-key="taxRelief">Belastingvoordeel (ca. 50%)</span>
+                                    </div>
+                                    <div class="item-value text-positive">
+                                        <span class="amount" id="vakbond_nieuw_belastingvoordeel"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="calculation-item is-total">
+                                <div class="item-label">
+                                    <span class="main-label" data-translate-key="netCost">Netto kosten</span>
+                                </div>
+                                <div class="item-value">
+                                    <span class="amount" id="vakbond_nieuw_netto_kosten"></span>
+                                </div>
+                            </div>
+                            <a class="toggle-details-btn" data-translate-key="showDetails">Toon details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+<!-- Modal voor uitleg of info -->
+<div id="info-modal" class="modal-container">
+    <div class="modal-content">
+        <button id="close-modal-btn" class="modal-close-btn" type="button">×</button>
+        <div id="modal-content-body">
+            <!-- Content wordt hier door JavaScript ingeladen -->
+        </div>
+    </div>
+</div>
+
+    <!-- JavaScript bestanden -->
+<script type="module" src="js/main.js"></script>
+
+</body>
+</html>
