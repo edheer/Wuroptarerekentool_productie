@@ -85,7 +85,7 @@ export const translations = {
         labelUserType: "Type medewerker",
         labelMonthlySalary: "Bruto maandsalaris (o.b.v. fulltime, januari)",
         labelHoursToSell: "Aantal uren te verkopen",
-        yourNetPayout: "Jouw netto-opbrengst",
+        yourNetPayout: "Jouw netto voordeel",
         netPayoutLabel: "Je ontvangt netto (na belasting):",
         leaveCalculation: "Berekening verlofwaarde",
         valuePerHour: "Waarde per uur",
